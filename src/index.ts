@@ -51,7 +51,8 @@ import { routes } from "./routes";
 
   const server = new ApolloServer({
     schema,
-    csrfPrevention: false,
+
+    csrfPrevention: true,
     cache: "bounded",
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
