@@ -28,9 +28,6 @@ import { routes } from "./routes";
   await connect();
   const app = express();
   app.use(express.json());
-  app.use(cors({
-    origin: ["http://localhost:5173", "https://flingr.vercel.app"],
-  }));
 
   // criar controllers de login e signup, serão rotas livres
   app.use(routes)
@@ -72,6 +69,10 @@ import { routes } from "./routes";
   await server.start();
   
   server.applyMiddleware(({ app, path: '/graphql' }))
+
+  app.use(cors({
+    origin: ["http://localhost:5173", "https://flingr.vercel.app"],
+  }));
 
   await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
   console.log(`🚀 Server ready at ${server.graphqlPath}`);
