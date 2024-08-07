@@ -30,6 +30,10 @@ import { routes } from "./routes";
   app.use(express.json());
   app.use(cors({
     origin: ["http://localhost:5173", "https://flingr.vercel.app"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   }));
 
   // criar controllers de login e signup, serão rotas livres
