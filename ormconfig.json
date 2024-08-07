@@ -1,0 +1,11 @@
+{
+  "type": "postgres",
+  "port": 5432,
+  "host": "localhost",
+  "username": "postgres",
+  "password": "postgres",
+  "database": "flingr",
+  "logging": false,
+  "synchronize": true,
+  "entities": ["./src/models/*.ts"]
+}

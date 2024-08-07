@@ -1,42 +1,56 @@
 import "reflect-metadata"
 
-import path from "path"
-
-import { ApolloServer } from 'apollo-server-express'
+import { ApolloServer } from "apollo-server-express"
 import {
   ApolloServerPluginDrainHttpServer,
   ApolloServerPluginLandingPageLocalDefault,
 } from "apollo-server-core";
-import express from 'express';
-import { createServer } from 'http';
+import express from "express";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { createServer } from "http";
+import multer from "multer";
+import cors from "cors";
 
-// import { makeExecutableSchema } from '@graphql-tools/schema';
-import { WebSocketServer } from 'ws';
-import { useServer } from 'graphql-ws/lib/use/ws';
+// @ts-ignore
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
+import { typeDefs } from "./typedefs";
+import { resolvers } from "./resolvers";
 
-import { buildSchema } from "type-graphql"
-import { UserResolver } from "./resolver/UserResolver";
+// import FileController from "./controllers/FileController"
 
-const app = express();
-app.use(express.json());
-
-const httpServer = createServer(app);
+import { connect } from "./config/database";
+// import multerConfig from "./config/multer";
+import { authMiddleware } from "./middlewares/auth";
+import { routes } from "./routes";
 
 (async () => {
-  const schema = await buildSchema({
-    resolvers: [UserResolver],
-    emitSchemaFile: path.resolve(__dirname, 'schema.gql')
-  });
+  await connect();
+  const app = express();
+  app.use(express.json());
+  app.use(cors());
+
+  // criar controllers de login e signup, serão rotas livres
+  app.use(routes)
+  // app.use(authMiddleware);
+
+  // const upload = multer(multerConfig);
+  // app.post('/upload', upload.single('file'), FileController.store);
+
+  const httpServer = createServer(app);
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
 
   const wsServer = new WebSocketServer({
     server: httpServer,
-    path: '/',
+    path: '/graphql',
   });
 
   const serverCleanup = useServer({ schema }, wsServer);
 
   const server = new ApolloServer({
     schema,
+    csrfPrevention: true,
+    cache: "bounded",
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       {
@@ -54,8 +68,8 @@ const httpServer = createServer(app);
 
   await server.start();
   
-  server.applyMiddleware(({ app, path: '/' }))
+  server.applyMiddleware(({ app, path: '/graphql' }))
 
   await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  console.log(`🚀 Server ready at ${server.graphqlPath}`);
 })()
