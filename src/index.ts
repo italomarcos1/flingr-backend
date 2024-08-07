@@ -54,6 +54,7 @@ import { routes } from "./routes";
 
     csrfPrevention: true,
     cache: "bounded",
+
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       {
@@ -74,9 +75,7 @@ import { routes } from "./routes";
   server.applyMiddleware(({
     app,
     path: '/graphql',
-    cors: {
-      origin: ["http://localhost:5173", "https://flingr.vercel.app"],
-    }
+    cors: false
   }))
 
   await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
