@@ -29,7 +29,11 @@ import { routes } from "./routes";
   const app = express();
   app.use(express.json());
   app.use(cors({
-    origin: ["http://localhost:5173", "https://flingr.vercel.app"],
+    origin: "https://flingr.vercel.app"
+  }));
+
+  app.options('*', cors({
+    origin: "https://flingr.vercel.app"
   }));
 
   // criar controllers de login e signup, serão rotas livres
@@ -52,7 +56,6 @@ import { routes } from "./routes";
   const server = new ApolloServer({
     schema,
     csrfPrevention: true,
-    introspection: true,
     cache: "bounded",
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
@@ -75,7 +78,7 @@ import { routes } from "./routes";
     app,
     path: '/graphql',
     cors: {
-      origin: ["http://localhost:5173", "https://flingr.vercel.app"],
+      origin: "https://flingr.vercel.app"
     }
   }))
 
